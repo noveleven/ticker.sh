@@ -16,9 +16,9 @@ if [ -z "$SYMBOLS" ]; then
   exit
 fi
 
-FIELDS=(symbol marketState regularMarketPrice regularMarketChange regularMarketChangePercent \
+FIELDS=(symbol longName marketState regularMarketPrice regularMarketChange regularMarketChangePercent \
   preMarketPrice preMarketChange preMarketChangePercent postMarketPrice postMarketChange postMarketChangePercent)
-API_ENDPOINT="https://query1.finance.yahoo.com/v7/finance/quote?lang=en-US&region=US&corsDomain=finance.yahoo.com"
+API_ENDPOINT="https://query1.finance.yahoo.com/v7/finance/quote?lang=zh-Hans&region=CN&corsDomain=finance.yahoo.com"
 
 : "${COLOR_BOLD:=\e[1;37m}"
 : "${COLOR_GREEN:=\e[32m}"
@@ -62,15 +62,17 @@ for symbol in $(IFS=' '; echo "${SYMBOLS[*]}"); do
     percent=$(query $symbol 'regularMarketChangePercent')
   fi
 
+  longName=$(query $symbol 'longName')
+
   if [ "$diff" == "0" ]; then
     color=
   elif ( echo "$diff" | grep -q ^- ); then
-    color=$COLOR_RED
-  else
     color=$COLOR_GREEN
+  else
+    color=$COLOR_RED
   fi
 
-  printf "%-10s$COLOR_BOLD%8.2f$COLOR_RESET" $symbol $price
+  printf "%-10s%12s$COLOR_BOLD%8.2f$COLOR_RESET" $longName $symbol $price
   printf "$color%10.2f%12s$COLOR_RESET" $diff $(printf "(%.2f%%)" $percent)
   printf " %s\n" "$nonRegularMarketSign"
 done
